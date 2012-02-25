@@ -1,0 +1,4 @@
+library/config.py
+config.py
+*.pyc
+*.pyo

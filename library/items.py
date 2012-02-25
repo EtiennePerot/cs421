@@ -4,7 +4,12 @@ from genres import *
 from publishers import *
 from languages import *
 
-itemsTable = dbTable('items', '*iid', 'title', 'date')
+itemsTable = dbTable("""CREATE TABLE `items` (
+  `iid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  PRIMARY KEY (`iid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 _rawItemClass = itemsTable.genClass()
 class Item(_rawItemClass):
 	@staticmethod
@@ -21,7 +26,14 @@ class Item(_rawItemClass):
 		return i
 itemsTable.bindClass(Item)
 
-booksTable = dbTable('books', '*iid', 'isbn', 'pages')
+booksTable = dbTable("""CREATE TABLE `books` (
+  `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
+  `isbn` bigint(20) unsigned NOT NULL,
+  `pages` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`iid`),
+  KEY `isbn` (`isbn`),
+  CONSTRAINT `books_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 _rawBookClass = booksTable.genClass()
 class Book(_rawBookClass):
 	@staticmethod

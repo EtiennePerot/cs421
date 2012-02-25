@@ -2,10 +2,23 @@
 
 from base import *
 
-languagesTable = dbTable('languages', '*iso', 'english', 'translated')
+languagesTable = dbTable("""CREATE TABLE `languages` (
+  `iso` varchar(16) NOT NULL COMMENT 'ISO language code',
+  `english` varchar(255) NOT NULL,
+  `translated` varchar(255) NOT NULL,
+  PRIMARY KEY (`iso`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 Language = languagesTable.genClass()
 
-hasLanguagesTable = dbTable('has_languages', '*iid', '*type', '*iso')
+hasLanguagesTable = dbTable("""CREATE TABLE `has_languages` (
+  `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
+  `type` enum('spoken','subtitled') NOT NULL COMMENT 'Spoken or subtitled',
+  `iso` varchar(16) NOT NULL COMMENT 'ISO language code',
+  PRIMARY KEY (`iid`,`type`,`iso`),
+  KEY `iso` (`iso`),
+  CONSTRAINT `has_languages_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `has_languages_ibfk_2` FOREIGN KEY (`iso`) REFERENCES `languages` (`iso`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 HasLanguage = hasLanguagesTable.genClass()
 HasLanguage.type_spoken = 'spoken'
 HasLanguage.type_subtitled = 'subtitled'

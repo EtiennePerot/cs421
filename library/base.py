@@ -1,4 +1,5 @@
 import sys
+import re
 import pymysql as mysql
 from pymysql import cursors
 
@@ -31,6 +32,8 @@ except Exception, e:
 def _sqlBackticks(s):
 	if type(s) is type([]):
 		return ', '.join([_sqlBackticks(x) for x in s])
+	if isinstance(s, dbTable):
+		return _sqlBackticks(s.getName())
 	return '`' + s.replace('\\', '\\\\').replace('`', '\\`') + '`'
 
 def _sqlColumnClause(params, suffix=''):
@@ -48,31 +51,40 @@ def _sqlQuery(query, _cursor=None, **params):
 		cursor = conn.cursor(_cursor)
 	print '~ Executing query:'
 	print query
-	print '~ With params:', params
+	if len(params):
+		print '~ With params:', params
 	cursor.execute(query, params)
 	conn.commit()
 	return cursor
 
 class dbTable(object):
-	def __init__(self, name, *fields):
-		"""
-			Notation:
-			dbTable('tablename', 'field1', 'field2, ..., '*primarykey1', '*primarykey2', ...)
-		"""
-		self._name = name
+	findBackString = re.compile('`([^`]+)`')
+	def __init__(self, sql):
+		self._sqlCreate = sql
+		self._name = None
 		self._primary = []
 		self._fields = []
+		for s in sql.split('\n'):
+			for backString in dbTable.findBackString.finditer(s):
+				backString = backString.group(1)
+				if 'CREATE TABLE' in s:
+					self._name = backString
+				elif 'PRIMARY KEY' in s:
+					if s not in self._primary:
+						self._primary.append(backString)
+				elif backString not in self._fields:
+					self._fields.append(backString)
+		if self._name is None:
+			raise Exception('Couldn\'t parse create table SQL statement.')
 		self._recordClass = None
-		for f in fields:
-			if f[0] == '*':
-				self._primary.append(f[1:])
-				self._fields.append(f[1:])
-			else:
-				self._fields.append(f)
 	def __str__(self):
 		return unicode(self).encode('utf8')
 	def __unicode__(self):
 		return unicode(self._name)
+	def create(self):
+		_sqlQuery(self._sqlCreate).close()
+	def drop(self):
+		_sqlQuery('DROP TABLE ' + _sqlBackticks(self._name)).close()
 	def _paramsIntersect(self, params):
 		filteredParams = {}
 		activeFields = []
@@ -84,6 +96,8 @@ class dbTable(object):
 					filteredParams[f] = params[f]
 				activeFields.append(f)
 		return activeFields, filteredParams
+	def getName(self):
+		return self._name
 	def _new(self, params):
 		activeFields, filteredParams = self._paramsIntersect(params)
 		q = _sqlQuery(

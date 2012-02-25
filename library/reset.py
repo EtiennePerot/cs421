@@ -4,12 +4,14 @@ from genres import *
 from items import *
 from languages import *
 from publishers import *
+from people import *
+from actors import *
 
 def reset():
 	tableOrder = [
-		itemsTable, booksTable, #videoTable, audioTable, songsTable, magazinesTable,
-		genresTable, authorsTable, publishersTable, languagesTable, #instancesTable,
-		authoredByTable, hasLanguagesTable, publishedByTable
+		itemsTable, booksTable, videoTable, audioTable, songsTable, magazinesTable,
+		genresTable, authorsTable, publishersTable, languagesTable, actorsTable, instancesTable,
+		authoredByTable, publishedByTable, hasLanguagesTable, hasActorsTable, reservedByTable
 	]
 	# First, drop in reverse order
 	for table in reversed(tableOrder):

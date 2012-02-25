@@ -1,5 +1,20 @@
 import sys
 import pymysql as mysql
+from pymysql import cursors
+
+class curry:
+	def __init__(self, func, *args, **kwargs):
+		self.func = func
+		self.pending = args[:]
+		self.kwargs = kwargs
+	def __call__(self, *args, **kwargs):
+		if kwargs and self.kwargs:
+			kw = self.kwargs.copy()
+			kw.update(kwargs)
+		else:
+			kw = kwargs or self.kwargs
+		return self.func(*(self.pending + args), **kw)
+
 try:
 	from config import dbConfig
 except:
@@ -26,8 +41,11 @@ def _sqlColumnClause(params, suffix=''):
 def _sqlValuesClause(params):
 	return ', '.join(['%(' + k + ')s' for k in params])
 
-def _sqlQuery(query, **params):
-	cursor = conn.cursor()
+def _sqlQuery(query, _cursor=None, **params):
+	if _cursor is None:
+		cursor = conn.cursor()
+	else:
+		cursor = conn.cursor(_cursor)
 	print '~ Executing query:'
 	print query
 	print '~ With params:', params
@@ -35,28 +53,39 @@ def _sqlQuery(query, **params):
 	conn.commit()
 	return cursor
 
-class _dbTable(object):
+class dbTable(object):
 	def __init__(self, name, *fields):
 		"""
 			Notation:
-			_dbTable('tablename', 'field1', 'field2, ..., '*primarykey1', '*primarykey2', ...)
+			dbTable('tablename', 'field1', 'field2, ..., '*primarykey1', '*primarykey2', ...)
 		"""
 		self._name = name
 		self._primary = []
 		self._fields = []
+		self._recordClass = None
 		for f in fields:
 			if f[0] == '*':
 				self._primary.append(f[1:])
 				self._fields.append(f[1:])
 			else:
 				self._fields.append(f)
-	def _new(self, params):
+	def __str__(self):
+		return unicode(self).encode('utf8')
+	def __unicode__(self):
+		return unicode(self._name)
+	def _paramsIntersect(self, params):
 		filteredParams = {}
 		activeFields = []
 		for f in self._fields:
 			if f in params:
-				filteredParams[f] = params[f]
+				if isinstance(params[f], _dbInstance) and len(params[f].getTable()._primary) == 1:
+					filteredParams[f] = params[f][params[f].getTable()._primary[0]]
+				else:
+					filteredParams[f] = params[f]
 				activeFields.append(f)
+		return activeFields, filteredParams
+	def _new(self, params):
+		activeFields, filteredParams = self._paramsIntersect(params)
 		q = _sqlQuery(
 			'INSERT INTO ' + _sqlBackticks(self._name) + '(' + _sqlBackticks(activeFields) + ') VALUES(' + _sqlValuesClause(activeFields) + ')',
 			**filteredParams
@@ -117,15 +146,35 @@ class _dbTable(object):
 			'DELETE FROM ' + _sqlBackticks(self._name) + ' WHERE ' + _sqlColumnClause(params) + ' LIMIT 1',
 			**params
 		).close()
+	def bindClass(self, newClass):
+		self._recordClass = newClass
 	def genClass(self):
 		table = self
 		class newClass(_dbInstance):
-			@staticmethod
-			def create(**params):
-				return newClass(**table._new(params))
+			@classmethod
+			def _fromExistingRecord(c, params):
+				return c(**params)
+			@classmethod
+			def create(c, **params):
+				return c(**table._new(params))
 			def __init__(self, **fields):
 				_dbInstance.__init__(self, table, **fields)
 		return newClass
+	def _getRecordClass(self):
+		if self._recordClass is None:
+			self._recordClass = self.genClass()
+		return self._recordClass
+	def findSingle(self, **params):
+		activeFields, params = self._paramsIntersect(params)
+		q = _sqlQuery(
+			'SELECT ' + _sqlBackticks(self._fields) + ' FROM ' + _sqlBackticks(self._name) + ' WHERE ' + _sqlColumnClause(activeFields) + ' LIMIT 1',
+			_cursor = cursors.DictCursor,
+			**params
+		)
+		result = q.fetchone()
+		if result is not None:
+			result = self._getRecordClass()(**result)
+		return result
 
 class _dbInstance(object):
 	def __init__(self, table=None, **fields):
@@ -145,6 +194,13 @@ class _dbInstance(object):
 	def __delitem__(self, key):
 		if key in self._fields:
 			del self._fields[key]
+	def __str__(self):
+		return unicode(self).encode('utf8')
+	def __unicode__(self):
+		s = u', '.join([unicode(k) + u'=' + unicode(v) for k, v in self._fields.items()])
+		return unicode(self._table) + u'(' + s + u')'
+	def getTable(self):
+		return self._table
 	def delete(self):
 		return self._table._objectDelete(self)
 	def sync(self):

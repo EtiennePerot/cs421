@@ -23,7 +23,7 @@ HasLanguage = hasLanguagesTable.genClass()
 HasLanguage.type_spoken = 'spoken'
 HasLanguage.type_subtitled = 'subtitled'
 
-def languageForceType(languages, type):
+def languageForceType(languages, languageType):
 	"""
 	Force all languages to be of the given type. Works with non-typed languages too.
 	"""
@@ -32,16 +32,16 @@ def languageForceType(languages, type):
 		if type(l) is type({}):
 			newLanguages.append({
 				'iso': l['iso'],
-				'type': type
+				'type': languageType
 			})
 		else:
 			newLanguages.append({
 				'iso': l,
-				'type': type
+				'type': languageType
 			})
 	return newLanguages
 
-def languageAssumeType(languages, type):
+def languageAssumeType(languages, languageType):
 	"""
 	Same as languageForceType but don't change type of already-typed languages
 	"""
@@ -52,7 +52,7 @@ def languageAssumeType(languages, type):
 		else:
 			newLanguages.append({
 				'iso': l,
-				'type': type
+				'type': languageType
 			})
 	return newLanguages
 

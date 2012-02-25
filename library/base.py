@@ -72,7 +72,7 @@ class dbTable(object):
 				elif 'PRIMARY KEY' in s:
 					if s not in self._primary:
 						self._primary.append(backString)
-				elif backString not in self._fields:
+				elif 'KEY' not in s and 'CONSTRAINT' not in s and backString not in self._fields:
 					self._fields.append(backString)
 		if self._name is None:
 			raise Exception('Couldn\'t parse create table SQL statement.')

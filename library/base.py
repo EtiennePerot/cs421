@@ -62,6 +62,7 @@ class dbTable(object):
 	def __init__(self, sql):
 		self._sqlCreate = sql
 		self._name = None
+		self._autoIncrement = None
 		self._primary = []
 		self._fields = []
 		for s in sql.split('\n'):
@@ -74,6 +75,8 @@ class dbTable(object):
 						self._primary.append(backString)
 				elif 'KEY' not in s and 'CONSTRAINT' not in s and backString not in self._fields:
 					self._fields.append(backString)
+					if 'AUTO_INCREMENT' in s:
+						self._autoIncrement = backString
 		if self._name is None:
 			raise Exception('Couldn\'t parse create table SQL statement.')
 		self._recordClass = None
@@ -104,10 +107,17 @@ class dbTable(object):
 			'INSERT INTO ' + _sqlBackticks(self._name) + '(' + _sqlBackticks(activeFields) + ') VALUES(' + _sqlValuesClause(activeFields) + ')',
 			**filteredParams
 		)
+		try:
+			lastRowId = q.lastrowid
+		except:
+			lastRowId = None
 		q.close()
 		objParams = filteredParams.copy()
+		if len(activeFields) != len(self._fields) and self._autoIncrement is not None and lastRowId is not None:
+			objParams[self._autoIncrement] = q.lastrowid
+			activeFields.append(self._autoIncrement)
 		if len(activeFields) != len(self._fields):
-			# Got to find out the rest of the data we inserted
+			# We're still missing information
 			otherFields = []
 			for f in self._fields:
 				if f not in activeFields:
@@ -117,10 +127,10 @@ class dbTable(object):
 				**filteredParams
 			)
 			row = q2.fetchone()
-			i = 0
-			for f in otherFields:
-				objParams[f] = row[i]
-				i += 1
+			if row is None:
+				raise Exception('Error while inserting new record; couldn\'t find the inserted record.')
+			for i in xrange(len(otherFields)):
+				objParams[otherFields[i]] = row[i]
 		return objParams
 	def _objectGetParams(self, paramList, obj, old=False, suffix=''):
 		params = {}

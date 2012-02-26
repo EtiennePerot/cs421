@@ -1,6 +1,6 @@
 import urllib2, json
 import library
-from library.dateutil.dateutil.parser import parse
+from dateutil.dateutil.parser import parse
 import re
 for i in range(10):
     request = urllib2.Request(url='https://www.googleapis.com/books/v1/volumes?q=intitle:' + str(i) + '&maxResults=40')
@@ -24,4 +24,3 @@ for i in range(10):
                 )
             except:
                 pass
-            

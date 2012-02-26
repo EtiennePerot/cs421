@@ -39,7 +39,7 @@ booksTable = dbTable("""CREATE TABLE `books` (
   `isbn` bigint(20) unsigned NOT NULL,
   `pages` int(10) unsigned NOT NULL,
   PRIMARY KEY (`iid`),
-  KEY `isbn` (`isbn`),
+  UNIQUE KEY `isbn` (`isbn`),
   CONSTRAINT `books_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 _rawBookClass = booksTable.genClass()

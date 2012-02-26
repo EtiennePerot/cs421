@@ -1,4 +1,4 @@
-import urllib2, random, json
+import urllib2, random, json, time
 
 from library.people import *
 
@@ -7,6 +7,8 @@ possibleStreet2 = ('Street', 'Avenue', 'Boulevard', 'Road', 'Highway')
 possibleCitySuffix = ('ville', 'city', 'polis', 'town', 'country', '')
 possibleNameConcat = ('', '_', '-', '.')
 possibleEmailDomains = ('googlemail.com', 'yandex.ru', 'gmail.com', 'hotmail.com', 'live.com', 'yahoo.com', 'yahoo.ca', 'sogetthis.com', 'mailinator.com', 'inbox.com')
+possibleRoles = ['Janitor', 'Librarian', 'Director', 'Reviewer', 'IT person', 'Manager thing']
+possibleStanding = [Member.standing_good, Member.standing_bad]
 
 def genName(first=True, last=True):
 	j = json.load(urllib2.urlopen('http://thenamegenerator.com/api.php'))
@@ -32,10 +34,10 @@ def genEmail(name):
 def genPassword(name):
 	# Because everyone uses their name as password; everybody knows that!
 	# That's just common password hygiene.
-	totallyRandomPassword = list(name)
+	totallyRandomPassword = list(name.replace(' ', ''))
 	random.shuffle(totallyRandomPassword)
 	totallyRandomPassword = ''.join(totallyRandomPassword)
-	if random.randint(0, 9) > 4: # Some silly people even try to make it more secureby adding numbers at the end
+	if random.randint(0, 9) > 4: # Some silly people even try to make it more secure by adding numbers at the end
 		totallyRandomPassword += random.choice(possibleNameConcat) * random.randint(1, 3) + str(random.randint(1, 2050))
 	return totallyRandomPassword
 
@@ -56,5 +58,21 @@ if __name__ == '__main__':
 		print 'Address:', address
 		print 'Email:', email
 		print 'Password:', password
-		Person.create(name=name, address=address, email=email, password=password)
+		p = Person.create(name=name, address=address, email=email, password=password)
+		if random.randint(0, 9) > 8: # With some probability, make it an employee
+			role = random.choice(possibleRoles)
+			salary = random.randint(100, 150000)
+			employed = time.strftime('%Y-%m-%d', time.localtime(time.time() - random.randint(0, 3 * 365 * 24 * 3600)))
+			print 'Role:', role
+			print 'Salary: $' + str(salary)
+			print 'Employed:', employed
+			p.toEmployee(role, salary, employed)
+		if random.randint(0, 9) > 4: # With some probability, make it a member
+			standing = random.choice(possibleStanding)
+			balance = random.randint(0, 999)
+			expiration = time.strftime('%Y-%m-%d', time.localtime(time.time() + random.randint(1, 3 * 365 * 24 * 3600)))
+			print 'Standing:', standing
+			print 'Balance: $' + str(balance)
+			print 'Expiration:', expiration
+			p.toMember(standing, balance, expiration)
 		print '--------------------------------------------'

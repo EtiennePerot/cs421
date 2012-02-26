@@ -16,7 +16,10 @@ def reset():
 	]
 	# First, drop in reverse order
 	for table in reversed(tableOrder):
-		table.drop()
+		try:
+			table.drop()
+		except: # Table probably doesn't exist
+			pass
 	# Then recreate in normal order
 	for table in tableOrder:
 		table.create()

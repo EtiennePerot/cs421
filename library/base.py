@@ -131,7 +131,7 @@ class dbTable(object):
 				raise Exception('Error while inserting new record; couldn\'t find the inserted record.')
 			for i in xrange(len(otherFields)):
 				objParams[otherFields[i]] = row[i]
-		return objParams
+		return self._getRecordClass()(**objParams)
 	def _objectGetParams(self, paramList, obj, old=False, suffix=''):
 		params = {}
 		for p in paramList:
@@ -175,12 +175,9 @@ class dbTable(object):
 	def genClass(self):
 		table = self
 		class newClass(_dbInstance):
-			@classmethod
-			def _fromExistingRecord(c, params):
-				return c(**params)
-			@classmethod
-			def create(c, **params):
-				return c(**table._new(params))
+			@staticmethod
+			def create(**params):
+				return table._new(params)
 			def __init__(self, **fields):
 				_dbInstance.__init__(self, table, **fields)
 		return newClass

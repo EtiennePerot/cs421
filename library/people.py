@@ -31,12 +31,36 @@ class Person(_rawPersonClass):
 		return _rawPersonClass.create(name=name, email=email, address=address, password=password, salt=salt)
 	def checkPassword(self, password):
 		return _saltPassword(password, self['salt']) == self['password']
+	def asMember(self):
+		return membersTable.findSingle(pnid=self['pnid'])
+	def toMember(self, standing, balance, expiration):
+		m = self.asMember()
+		if m is None: # New member
+			m = Member.createFromPerson(self, standing, balance, expiration)
+		else: # Update existing member info if necessary
+			m['standing'] = standing
+			m['balance'] = balance
+			m['expiration'] = expiration
+			m.sync() # Will not do anything if no information has changed
+		return m
+	def asEmployee(self):
+		return employeesTable.findSingle(pnid=self['pnid'])
+	def toEmployee(self, role, salary, employed):
+		e = self.asEmployee()
+		if e is None: # New employee
+			e = Employee.createFromPerson(self, role, salary, employed)
+		else: # Update existing employee info if necessary
+			e['role'] = role
+			e['salary'] = salary
+			e['employed'] = employed
+			e.sync() # Will not do anything if no information has changed
+		return e
 peopleTable.bindClass(Person)
 
 # Employees
 employeesTable = dbTable("""CREATE TABLE `employees` (
   `pnid` int(10) unsigned NOT NULL,
-  `role` enum('librarian') DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL,
   `salary` float DEFAULT NULL,
   `employed` date DEFAULT NULL,
   PRIMARY KEY (`pnid`),
@@ -47,7 +71,10 @@ class Employee(_rawEmployeeClass):
 	@staticmethod
 	def create(name, email, address, password, role, salary, employed):
 		p = Person.create(name, email, address, password)
-		return _rawEmployeeClass.create(pnid=p['pnid'], role=role, salary=salary, employed=employed)
+		return Employee.createFromPerson(p, role=role, salary=salary, employed=employed)
+	@staticmethod
+	def createFromPerson(person, role, salary, employed):
+		return _rawEmployeeClass.create(pnid=person['pnid'], role=role, salary=salary, employed=employed)
 employeesTable.bindClass(Employee)
 
 # Members
@@ -55,7 +82,7 @@ membersTable = dbTable("""CREATE TABLE `members` (
   `pnid` int(11) unsigned NOT NULL,
   `standing` enum('good','bad') DEFAULT NULL,
   `balance` int(11) DEFAULT NULL,
-  `expiration` datetime DEFAULT NULL,
+  `expiration` date DEFAULT NULL,
   PRIMARY KEY (`pnid`),
   CONSTRAINT `members_ibfk_1` FOREIGN KEY (`pnid`) REFERENCES `people` (`pnid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
@@ -64,7 +91,10 @@ class Member(_rawMemberClass):
 	@staticmethod
 	def create(name, email, address, password, standing, balance, expiration):
 		p = Person.create(name, email, address, password)
-		return _rawMemberClass.create(pnid=p['pnid'], standing=standing, balance=balance, expiration=expiration)
+		return Member.createFromPerson(p, standing=standing, balance=balance, expiration=expiration)
+	@staticmethod
+	def createFromPerson(person, standing, balance, expiration):
+		return _rawMemberClass.create(pnid=person['pnid'], standing=standing, balance=balance, expiration=expiration)
 Member.standing_good = 'good'
 Member.standing_bad = 'bad'
 membersTable.bindClass(Member)

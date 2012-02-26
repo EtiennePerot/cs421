@@ -1,5 +1,9 @@
 import urllib2, json
 import library
+from library.authors import *
+from library.publishers import *
+from library.actors import *
+from library.genres import *
 import re
 
 def splitStrings(myString):
@@ -44,7 +48,7 @@ for i in range(n):
             lookup = authorByName(a.strip())
             if lookup is None:
                 lookup = Author.create(name = a.strip())
-            authorList.append(a)
+            authorList.append(lookup)
 
 #here
         publishers = splitStrings(parsed['Director'])#publisherByName(parsed['Director'])  
@@ -55,7 +59,7 @@ for i in range(n):
             lookup = publisherByName(a.strip())
             if lookup is None:
                 lookup = Publisher.create(name = a.strip())
-            publisherList.append(a)
+            publisherList.append(lookup)
 
 #here            
         actors = splitStrings(parsed['Actors'])#actorByName(parsed['Actors'])
@@ -66,25 +70,25 @@ for i in range(n):
             lookup = actorByName(a.strip())
             if lookup is None:
                 lookup = Actor.create(name = a.strip())
-            actorList.append(a)
+            actorList.append(lookup)
         
         genres = splitStrings(parsed['Genre'])
-        genreList = []
-        for a in genres:
-            lookup = genreByName(a.strip())
-            if lookup is None:
-                lookup = Genre.create(name = a.strip())
-            genreList.append(a)
+        genreList = genres
+#        for a in genres:
+#            lookup = genreByName(a.strip())
+#            if lookup is None:
+#                lookup = Genre.create(name = a.strip())
+#            genreList.append(a)
 
         library.items.Video.create(
             title = parsed['Title'],
             date = theDate,
             format = theFormat,
-            duration = parsed['Runtime']
-            genres = genreList 
-            authors = authorList 
-            publishers = publisherList 
-            actors = actorList
+            duration = parsed['Runtime'],
+            genres = genreList, 
+            authors = authorList, 
+            publishers = publisherList, 
+            actors = actorList,
             languages = ['en', 'fr']
         )
         

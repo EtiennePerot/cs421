@@ -20,6 +20,8 @@ def reset():
 	# Then recreate in normal order
 	for table in tableOrder:
 		table.create()
+	# Recreate language data
+	createLanguageData()
 
 if __name__ == '__main__':
 	if raw_input('Are you sure you want to reset everything? (Y/n) ').lower() in ('y', 'yes', ''):

@@ -56,8 +56,8 @@ def languageAssumeType(languages, languageType):
 			})
 	return newLanguages
 
-if __name__ == '__main__':
-	# Sample data
+def createLanguageData():
+	# From Wikipedia: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 	Language.create(iso='ab', english=u'Abkhaz', translated=u'аҧсуа бызшәа, аҧсшәа')
 	Language.create(iso='aa', english=u'Afar', translated=u'Afaraf')
 	Language.create(iso='af', english=u'Afrikaans', translated=u'Afrikaans')

@@ -10,6 +10,7 @@ from actors import *
 def reset():
 	tableOrder = [
 		itemsTable, booksTable, videoTable, audioTable, songsTable, magazinesTable,
+		peopleTable, employeesTable, membersTable,
 		genresTable, authorsTable, publishersTable, languagesTable, actorsTable, instancesTable,
 		authoredByTable, publishedByTable, hasLanguagesTable, hasActorsTable, reservedByTable
 	]

@@ -1,17 +1,20 @@
 import urllib2, json
 import library
 import re
-#import  imdb
 
-for i in range(50):
+def splitStrings(myString):
+    mySplit = myString.split(',')
+    return mySplit
+
+n = 50
+
+#updating i here gets n film id's: note that not all will be valid!
+for i in range(n):
     request = urllib2.Request(url='http://www.imdbapi.com/?i=' + str(i)) 
-
-#'https://www.googleapis.com/books/v1/volumes?q=intitle:'+str(i) +'&maxResults=40')
-
     result = urllib2.urlopen(request)
     parsed = json.loads(result.read())
-#    video_list = parsed_result['items']
-#    for item in video_list:
+
+    #print parsed attributes
     if(parsed.has_key('Title')):
         print 'title: ' + parsed['Title']
         if(parsed.has_key('Year')): 
@@ -31,26 +34,57 @@ for i in range(50):
         if(parsed.has_key('Actors')):
             print 'actors: ' + parsed['Actors']
         print ''
+
+#here
+        authors = splitStrings(parsed['Writer'])#authorByName(parsed['Writer'])
+        #if author is None:
+        #    author = Author.create(parsed['Writer'])
+        authorList = []
+        for a in authors:
+            lookup = authorByName(a.strip())
+            if lookup is None:
+                lookup = Author.create(name = a.strip())
+            authorList.append(a)
+
+#here
+        publishers = splitStrings(parsed['Director'])#publisherByName(parsed['Director'])  
+        #if publisher is None:
+        #    publisher = Publisher.create(parsed['Director'])
+        publisherList = []
+        for a in publishers:
+            lookup = publisherByName(a.strip())
+            if lookup is None:
+                lookup = Publisher.create(name = a.strip())
+            publisherList.append(a)
+
+#here            
+        actors = splitStrings(parsed['Actors'])#actorByName(parsed['Actors'])
+        #if actor is None:
+        #    actor = Actor.create(parsed['Actors'])
+        actorList = []
+        for a in actors:
+            lookup = actorByName(a.strip())
+            if lookup is None:
+                lookup = Actor.create(name = a.strip())
+            actorList.append(a)
         
+        genres = splitStrings(parsed['Genre'])
+        genreList = []
+        for a in genres:
+            lookup = genreByName(a.strip())
+            if lookup is None:
+                lookup = Genre.create(name = a.strip())
+            genreList.append(a)
+
         library.items.Video.create(
             title = parsed['Title'],
             date = theDate,
             format = theFormat,
             duration = parsed['Runtime']
+            genres = genreList 
+            authors = authorList 
+            publishers = publisherList 
+            actors = actorList
+            languages = ['en', 'fr']
         )
-            
         
-
-#for i in range(5):
-#note iid generated automatically
-       # print 'title'
-       # print 'date'
-    #note choose this randomly
-       # print 'format'
-       # print 'duration' 
-       # print 'original language'
-    #note choose English French automatically, and Spanish occasionally
-       # print 'genres'
-       # print 'author'
-       # print 'publisher/studio'
-       # print 'actors' 

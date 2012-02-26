@@ -3,6 +3,7 @@ from authors import *
 from genres import *
 from publishers import *
 from languages import *
+from actors import *
 
 # Items
 itemsTable = dbTable("""CREATE TABLE `items` (
@@ -121,9 +122,14 @@ videoTable = dbTable("""CREATE TABLE `video` (
 _rawVideoClass = videoTable.genClass()
 class Video(_rawVideoClass):
 	@staticmethod
-	def create(title, date, format, duration, genres=[], authors=[], publishers=[], languages=[]):
+	def create(title, date, format, duration, actors=[], genres=[], authors=[], publishers=[], languages=[]):
+		"""
+		actors is a list of Actor records or actor IDs.
+		"""
 		# If language type is not given, assume it is spoken
 		i = Item.create(title, date, genres, authors, publishers, languageAssumeType(languages, HasLanguage.type_spoken))
+		for a in actors:
+			HasActor.create(iid=i['iid'], aid=a)
 		return _rawVideoClass.create(iid=i['iid'], format=format, duration=duration)
 Video.format_vhs = 'vhs'
 Video.format_dvd = 'dvd'

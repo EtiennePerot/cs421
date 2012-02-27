@@ -1,7 +1,7 @@
 import urllib2, json
 import library
 import time
-from library.dateutil.dateutil.parser import parse
+from dateutil.dateutil.parser import parse
 import re
 for i in range(1000):    
     request = urllib2.Request(url='https://www.googleapis.com/books/v1/volumes?q=isbn:' + str(i) + '&maxResults=40')

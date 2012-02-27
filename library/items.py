@@ -37,7 +37,7 @@ itemsTable.bindClass(Item)
 # Books
 booksTable = dbTable("""CREATE TABLE `books` (
   `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
-  `isbn` bigint(20) unsigned NOT NULL,
+  `isbn` bigint(13) unsigned zerofill NOT NULL,
   `pages` int(10) unsigned NOT NULL,
   PRIMARY KEY (`iid`),
   UNIQUE KEY `isbn` (`isbn`),
@@ -54,13 +54,13 @@ booksTable.bindClass(Book)
 
 # Magazines
 magazinesTable = dbTable("""CREATE TABLE `magazines` (
- `iid` int(10) unsigned NOT NULL,
- `issn` bigint(20) unsigned NOT NULL,
- `issue` int(10) unsigned NOT NULL,
- `pages` int(10) unsigned NOT NULL,
- PRIMARY KEY (`iid`),
- KEY `issn` (`issn`),
- CONSTRAINT `magazines_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
+  `iid` int(10) unsigned NOT NULL,
+  `issn` bigint(8) unsigned zerofill NOT NULL,
+  `issue` int(10) unsigned NOT NULL,
+  `pages` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`iid`),
+  KEY `issn` (`issn`),
+  CONSTRAINT `magazines_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 _rawMagazineClass = magazinesTable.genClass()
 class Magazine(_rawMagazineClass):

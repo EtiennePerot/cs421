@@ -37,7 +37,7 @@ itemsTable.bindClass(Item)
 # Books
 booksTable = dbTable("""CREATE TABLE `books` (
   `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
-  `isbn` bigint(13) unsigned zerofill NOT NULL,
+  `isbn` bigint(10) unsigned zerofill NOT NULL,
   `pages` int(10) unsigned NOT NULL,
   PRIMARY KEY (`iid`),
   UNIQUE KEY `isbn` (`isbn`),

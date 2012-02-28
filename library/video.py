@@ -26,3 +26,7 @@ Video.format_dvd = 'dvd'
 Video.format_bluray = 'bluray'
 Video.format_digital = 'digital'
 videoTable.bindClass(Video)
+
+def generateRandomVideo(numVideos):
+	import video_generator
+	video_generator.createVideo(numVideos)

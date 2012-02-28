@@ -104,3 +104,7 @@ class Member(_rawMemberClass):
 Member.standing_good = 'good'
 Member.standing_bad = 'bad'
 membersTable.bindClass(Member)
+
+def generateRandomPeople(numPeople, printInfo=True):
+	import people_generator
+	people_generator.createPeople(numPeople, printInfo=printInfo)

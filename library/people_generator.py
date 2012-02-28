@@ -1,6 +1,6 @@
 import urllib2, random, json, time
 
-from library.people import *
+from people import *
 
 possibleStreet1 = ('Sweet', 'Apple', 'Acres', 'Orange', 'Plum', 'Cumquats', 'Pear', 'Mango')
 possibleStreet2 = ('Street', 'Avenue', 'Boulevard', 'Road', 'Highway')
@@ -41,6 +41,41 @@ def genPassword(name):
 		totallyRandomPassword += random.choice(possibleNameConcat) * random.randint(1, 3) + str(random.randint(1, 2050))
 	return totallyRandomPassword
 
+def createPeople(numPeople, printInfo=True):
+	for i in xrange(numPeople):
+		if printInfo:
+			print 'Creating person', i + 1
+		name = genName()
+		address = genAddress()
+		email = genEmail(name)
+		password = genPassword(name)
+		if printInfo:
+			print 'Name:', name
+			print 'Address:', address
+			print 'Email:', email
+			print 'Password:', password
+		p = Person.create(name=name, address=address, email=email, password=password)
+		if random.randint(0, 9) > 8: # With some probability, make it an employee
+			role = random.choice(possibleRoles)
+			salary = random.randint(100, 150000)
+			employed = time.strftime('%Y-%m-%d', time.localtime(time.time() - random.randint(0, 3 * 365 * 24 * 3600)))
+			if printInfo:
+				print 'Role:', role
+				print 'Salary: $' + str(salary)
+				print 'Employed:', employed
+			p.toEmployee(role, salary, employed)
+		if random.randint(0, 9) > 4: # With some probability, make it a member
+			standing = random.choice(possibleStanding)
+			balance = random.randint(0, 999)
+			expiration = time.strftime('%Y-%m-%d', time.localtime(time.time() + random.randint(1, 3 * 365 * 24 * 3600)))
+			if printInfo:
+				print 'Standing:', standing
+				print 'Balance: $' + str(balance)
+				print 'Expiration:', expiration
+			p.toMember(standing, balance, expiration)
+		if printInfo:
+			print '--------------------------------------------'
+
 if __name__ == '__main__':
 	num = None
 	while num is None:
@@ -48,31 +83,4 @@ if __name__ == '__main__':
 			num = int(raw_input('How many people do you feel like creating today? '))
 		except:
 			print 'That\'s not a number. Try again, it\'s not very difficult.'
-	for i in xrange(num):
-		print 'Creating person', i + 1
-		name = genName()
-		address = genAddress()
-		email = genEmail(name)
-		password = genPassword(name)
-		print 'Name:', name
-		print 'Address:', address
-		print 'Email:', email
-		print 'Password:', password
-		p = Person.create(name=name, address=address, email=email, password=password)
-		if random.randint(0, 9) > 8: # With some probability, make it an employee
-			role = random.choice(possibleRoles)
-			salary = random.randint(100, 150000)
-			employed = time.strftime('%Y-%m-%d', time.localtime(time.time() - random.randint(0, 3 * 365 * 24 * 3600)))
-			print 'Role:', role
-			print 'Salary: $' + str(salary)
-			print 'Employed:', employed
-			p.toEmployee(role, salary, employed)
-		if random.randint(0, 9) > 4: # With some probability, make it a member
-			standing = random.choice(possibleStanding)
-			balance = random.randint(0, 999)
-			expiration = time.strftime('%Y-%m-%d', time.localtime(time.time() + random.randint(1, 3 * 365 * 24 * 3600)))
-			print 'Standing:', standing
-			print 'Balance: $' + str(balance)
-			print 'Expiration:', expiration
-			p.toMember(standing, balance, expiration)
-		print '--------------------------------------------'
+	createPeople(num, printInfo=True)

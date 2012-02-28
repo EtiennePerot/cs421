@@ -1,3 +1,4 @@
+import sys
 from base import *
 from authors import *
 from genres import *
@@ -27,9 +28,18 @@ def reset():
 	# Then recreate in normal order
 	for table in tableOrder:
 		table.create()
-	# Recreate language data
-	createLanguageData()
+
+def insertSamples():
+	populateSampleMagazines()
+	populateSampleAudio()
+
+def ifApprove(question, execute):
+	if raw_input(question + ' (Y/n) ').lower() in ('y', 'yes', ''):
+		execute()
 
 if __name__ == '__main__':
-	if raw_input('Are you sure you want to reset everything? (Y/n) ').lower() in ('y', 'yes', ''):
-		reset()
+	ifApprove('Are you sure you want to reset everything?', reset)
+	ifApprove('Recreate language data?', createLanguageData)
+	ifApprove('Insert audio/magazines samples?', insertSamples)
+	ifApprove('Generate 1000 IMDB movies?', curry(generateRandomVideo, 1000))
+	ifApprove('Generate over nine thousand members?', curry(generateRandomPeople, 9001, printInfo=False))

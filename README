@@ -1,3 +1,8 @@
 Repository for COMP 421 (databases) project.
 
-Remember to make a valid config file in the library folder.
+Members:
+	Alassane Ndiaye (ID: 260376319)
+	Mona Ghassemi   (ID: 260362867)
+	Etienne Perot   (ID: 260377858)
+
+The main module is the library module, located in the folder of the same name. Read the README i nthere for further instructions.

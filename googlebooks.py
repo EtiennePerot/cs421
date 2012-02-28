@@ -3,10 +3,20 @@ from library.books import *
 import time
 from dateutil.dateutil.parser import parse
 import re
-for i in range(1000):
-	request = urllib2.Request(url='https://www.googleapis.com/books/v1/volumes?q=isbn:' + str(i) + '&maxResults=40')
-	time.sleep(10)
-	try:
+import sys
+books_generated = 0;
+num = None
+i=0
+while num is None:
+    try:
+        num = int(raw_input('How many books would you like to generate? '))
+    except:
+        print 'That\'s not a number. Try again, it\'s not very difficult.'
+while True:
+    i += 1 
+    request = urllib2.Request(url='https://www.googleapis.com/books/v1/volumes?q=isbn:' + str(i) + '&maxResults=40')
+    time.sleep(5)
+    try:
 		result = urllib2.urlopen(request)
 		book_list = json.loads(result.read())['items']
 		for item in book_list:
@@ -22,6 +32,10 @@ for i in range(1000):
 					isbn=re.search('\d+', item['volumeInfo']['industryIdentifiers'][0]['identifier']).group(0),
 					pages=item['volumeInfo']['pageCount']
 				)
-	except Exception as detail:
+                books_generated += 1 
+                print "Number of books generated:"+str(books_generated)
+                if num == books_generated:
+                    sys.exit()
+    except Exception as detail:
 		print detail
 		pass

@@ -146,7 +146,7 @@ instancesTable = dbTable("""CREATE TABLE `instances` (
   PRIMARY KEY (`instid`),
   KEY `iid` (`iid`),
   CONSTRAINT `instances_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8""")
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 Instance = instancesTable.genClass()
 
 # Reservations

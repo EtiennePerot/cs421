@@ -16,6 +16,7 @@ def createVideo(numVideos):
 	counter = 1
 	while successful < numVideos:
 		request = urllib2.Request(url='http://www.imdbapi.com/?i=' + str(counter))
+		counter += 1
 		result = urllib2.urlopen(request)
 		parsed = json.loads(result.read())
 		if(parsed.has_key('Title')):

@@ -2,6 +2,10 @@ from actors import *
 from authors import *
 from genres import *
 from items import *
+from books import *
+from magazines import *
+from audio import *
+from video import *
 from languages import *
 from people import *
 from publishers import *

@@ -2,6 +2,10 @@ from base import *
 from authors import *
 from genres import *
 from items import *
+from books import *
+from magazines import *
+from audio import *
+from video import *
 from languages import *
 from publishers import *
 from people import *

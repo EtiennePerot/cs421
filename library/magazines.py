@@ -1,139 +1,25 @@
-import items
-from authors import *
-from publishers import *
+from base import *
+from items import *
 
-author_list=[]
-author = authorByName("George Treant")
-if author is None:
-    author = items.Author.create(name="George Treant")
-author_list.append(author)
-author = authorByName("Lucas Benner")
-if author is None:
-    author = items.Author.create(name="Lucas Benner")
-author_list.append(author)
+# Magazines
+magazinesTable = dbTable("""CREATE TABLE `magazines` (
+  `iid` int(10) unsigned NOT NULL,
+  `issn` bigint(8) unsigned zerofill NOT NULL,
+  `issue` int(10) unsigned NOT NULL,
+  `pages` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`iid`),
+  KEY `issn` (`issn`),
+  CONSTRAINT `magazines_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
+_rawMagazineClass = magazinesTable.genClass()
+class Magazine(_rawMagazineClass):
+	@staticmethod
+	def create(title, date, issn, issue, pages, genres=[], authors=[], publishers=[], languages=[]):
+		# Languages are all "subtitled" in magazines
+		i = Item.create(title, date, genres, authors, publishers, languageForceType(languages, HasLanguage.type_subtitled))
+		return _rawMagazineClass.create(iid=i['iid'], issn=issn, issue=issue, pages=pages)
+magazinesTable.bindClass(Magazine)
 
-publisher_list=[]
-publisher = publisherByName("Guideposts / Ideals")
-if publisher is None:
-    publisher = items.Publisher.create(name="Guideposts / Ideals")
-publisher_list.append(publisher)
-
-items.Magazine.create(
-    title="The road to a fitter you",
-    date="2003-07-21",
-    issn="39295828",
-    issue="3",
-    pages="56",
-    genres=["sport","fashion","men"],
-    authors=author_list,
-    publishers=publisher_list,
-    languages=["en"]
-)
-
-author_list=[]
-author = authorByName("Tyra Holmes")
-if author is None:
-    author = items.Author.create(name="Tyra Holmes")
-author_list.append(author)
-author = authorByName("Eleonore Lafee")
-if author is None:
-    author = items.Author.create(name="Eleonore Lafee")
-author_list.append(author)
-author = authorByName("Mathilde Laurence")
-if author is None:
-    author = items.Author.create(name="Mathilde Laurence")
-author_list.append(author)
-
-publisher_list=[]
-publisher = publisherByName("Guideposts / Ideals")
-if publisher is None:
-    publisher = items.Publisher.create(name="Guideposts / Ideals")
-publisher_list.append(publisher)
-
-items.Magazine.create(
-    title="Femme Fatale",
-    date="2009-03-18",
-    issn="39129047",
-    issue="1",
-    pages="32",
-    genres=["fashion","women"],
-    authors=author_list,
-    publishers=publisher_list,
-    languages=["en", "fr"]
-)
-
-author_list=[]
-author = authorByName("Jimmy Watsons")
-if author is None:
-    author = items.Author.create(name="Jimmy Watsons")
-author_list.append(author)
-
-publisher_list=[]
-publisher = publisherByName("Hodder Education")
-if publisher is None:
-    publisher = items.Publisher.create(name="Hodder Education")
-publisher_list.append(publisher)
-
-
-items.Magazine.create(
-    title="Tech: 101",
-    date="2012-01-18",
-    issn="50581920",
-    issue="6",
-    pages="24",
-    genres=["Technology"],
-    authors=author_list,
-    publishers=publisher_list,
-    languages=["en"]
-)
-
-author_list=[]
-author = authorByName("James Williams")
-if author is None:
-    author = items.Author.create(name="James Williams")
-author_list.append(author)
-
-publisher_list=[]
-publisher = publisherByName("Brookings Institution Press")
-if publisher is None:
-    publisher = items.Publisher.create(name="Brookings Institution Press")
-publisher_list.append(publisher)
-
-
-items.Magazine.create(
-    title="The Globe",
-    date="2012-02-27",
-    issn="50581920",
-    issue="119",
-    pages="30",
-    genres=["News"],
-    authors=author_list,
-    publishers=publisher_list,
-    languages=["en"]
-)
-
-author_list=[]
-author = authorByName("Mike Simons")
-if author is None:
-    author = items.Author.create(name="Mike Simons")
-author_list.append(author)
-
-publisher_list=[]
-publisher = publisherByName("Qcards")
-if publisher is None:
-    publisher = items.Publisher.create(name="Qcards")
-publisher_list.append(publisher)
-
-
-items.Magazine.create(
-    title="Are you game",
-    date="2012-02-27",
-    issn="59307429",
-    issue="26",
-    pages="35",
-    genres=["Video Games","Technology"],
-    authors=author_list,
-    publishers=publisher_list,
-    languages=["en"]
-)
-
+def populateSampleMagazines():
+	import magazines_sample
+	magazines_sample.run()

@@ -1,9 +1,5 @@
 import urllib2, json
-import library
-from library.authors import *
-from library.publishers import *
-from library.actors import *
-from library.genres import *
+from library import *
 import re
 
 def splitStrings(myString):
@@ -80,7 +76,7 @@ for i in range(n):
 #                lookup = Genre.create(name = a.strip())
 #            genreList.append(a)
 
-        library.items.Video.create(
+        Video.create(
             title = parsed['Title'],
             date = theDate,
             format = theFormat,

@@ -32,6 +32,8 @@ class Item(_rawItemClass):
 		for l in languages:
 			HasLanguage.create(iid=i['iid'], **l)
 		return i
+	def makeInstance(self):
+		return Instance.create(iid=self['iid'])
 itemsTable.bindClass(Item)
 
 # Books
@@ -139,12 +141,12 @@ videoTable.bindClass(Video)
 
 # Instances
 instancesTable = dbTable("""CREATE TABLE `instances` (
- `instid` int(10) unsigned NOT NULL COMMENT 'Instance ID',
- `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
- PRIMARY KEY (`instid`),
- KEY `iid` (`iid`),
- CONSTRAINT `instances_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
+  `instid` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Instance ID',
+  `iid` int(10) unsigned NOT NULL COMMENT 'Item ID',
+  PRIMARY KEY (`instid`),
+  KEY `iid` (`iid`),
+  CONSTRAINT `instances_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8""")
 Instance = instancesTable.genClass()
 
 # Reservations
@@ -162,14 +164,13 @@ reservedByTable = dbTable("""CREATE TABLE `reserved_by` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 ReservedBy = reservedByTable.genClass()
 
+def makeRandomItemInstances():
+	import random
+	allItems = itemsTable.getAll()
+	for item in allItems:
+		numInstances = random.randint(0, 8)
+		for i in xrange(numInstances):
+			item.makeInstance()
+
 if __name__ == '__main__':
-	Book.create(
-		title      = 'The Stranger',
-		date       = '1942-01-01',
-		isbn       = 9780679720201,
-		pages      = 124,
-		genres     = ['Existentialism', 'Philosophy'],
-		authors    = [authorByName('Albert Camus')],
-		publishers = [publisherByName('Freshbooks')],
-		languages  = ['en', 'fr']
-	)
+	makeRandomItemInstances()

@@ -186,16 +186,32 @@ class dbTable(object):
 			self._recordClass = self.genClass()
 		return self._recordClass
 	def findSingle(self, **params):
+		result = self.find(limit=1, **params)
+		if not len(result):
+			return None
+		return result[0]
+	def getAll(self):
+		return self.find()
+	def find(self, limit=None, **params):
 		activeFields, params = self._paramsIntersect(params)
+		sqlWhere = ''
+		if len(activeFields):
+			sqlWhere = ' WHERE ' + _sqlColumnClause(activeFields)
+		limitString = ''
+		if limit is not None and type(limit) is type(0) and limit > 0:
+			limitString = ' LIMIT ' + str(limit)
 		q = _sqlQuery(
-			'SELECT ' + _sqlBackticks(self._fields) + ' FROM ' + _sqlBackticks(self._name) + ' WHERE ' + _sqlColumnClause(activeFields) + ' LIMIT 1',
+			'SELECT ' + _sqlBackticks(self._fields) + ' FROM ' + _sqlBackticks(self._name) + sqlWhere + limitString,
 			_cursor = cursors.DictCursor,
 			**params
 		)
-		result = q.fetchone()
-		if result is not None:
-			result = self._getRecordClass()(**result)
-		return result
+		results = q.fetchall()
+		if results is None:
+			return []
+		objectResults = []
+		for r in results:
+			objectResults.append(self._getRecordClass()(**r))
+		return objectResults
 
 class _dbInstance(object):
 	def __init__(self, table=None, **fields):

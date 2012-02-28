@@ -42,4 +42,5 @@ if __name__ == '__main__':
 	ifApprove('Recreate language data?', createLanguageData)
 	ifApprove('Insert audio/magazines samples?', insertSamples)
 	ifApprove('Generate 1000 IMDB movies?', curry(generateRandomVideo, 1000))
+	ifApprove('Generate 1000 books?', curry(generateRandomBooks, 1000))
 	ifApprove('Generate over nine thousand members?', curry(generateRandomPeople, 9001, printInfo=False))

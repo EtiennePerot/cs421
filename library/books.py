@@ -18,3 +18,7 @@ class Book(_rawBookClass):
 		i = Item.create(title, date, genres, authors, publishers, languageForceType(languages, HasLanguage.type_subtitled))
 		return _rawBookClass.create(iid=i['iid'], isbn=isbn, pages=pages)
 booksTable.bindClass(Book)
+
+def generateRandomBooks(numBooks):
+	import books_generator
+	books_generator.createBooks(numBooks)

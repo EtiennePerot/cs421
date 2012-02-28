@@ -71,7 +71,7 @@ ReservedBy = reservedByTable.genClass()
 ReservedBy.type_borrowed = 'borrowed'
 ReservedBy.type_reserved = 'reserved'
 
-def makeRandomItemInstances():
+def generateRandomItemInstances():
 	import random
 	allItems = itemsTable.getAll()
 	for item in allItems:
@@ -79,7 +79,7 @@ def makeRandomItemInstances():
 		for i in xrange(numInstances):
 			item.makeInstance()
 
-def makeRandomReservations():
+def generateRandomReservations():
 	import time, random, people
 	allInstances = instancesTable.getAll()
 	allMembers = people.membersTable.getAll()

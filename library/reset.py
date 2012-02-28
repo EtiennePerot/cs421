@@ -44,3 +44,5 @@ if __name__ == '__main__':
 	ifApprove('Generate 1000 IMDB movies?', curry(generateRandomVideo, 1000))
 	ifApprove('Generate 1000 books?', curry(generateRandomBooks, 1000))
 	ifApprove('Generate over nine thousand members?', curry(generateRandomPeople, 9001, printInfo=False))
+	ifApprove('Generate random instances?', generateRandomItemInstances)
+	ifApprove('Generate random reservations?', generateRandomReservations)

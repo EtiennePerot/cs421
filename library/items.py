@@ -44,7 +44,15 @@ instancesTable = dbTable("""CREATE TABLE `instances` (
   KEY `iid` (`iid`),
   CONSTRAINT `instances_ibfk_1` FOREIGN KEY (`iid`) REFERENCES `items` (`iid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
-Instance = instancesTable.genClass()
+_rawInstanceClass = instancesTable.genClass()
+class Instance(_rawInstanceClass):
+	def reserve(self, member, fromDate, toDate, type):
+		"""
+			Sadly, due to "from" being a keyword in Python, we cannot use it as argument names.
+			So the "from" has been renamed to "fromDate" in this function, and "to" has been renamed to "toDate" for consistency.
+		"""
+		return ReservedBy.create(pnid=member, instid=self['instid'], to=toDate, type=type, **{'from': fromDate}) # Hax to make it have a keyword argument named "from"
+instancesTable.bindClass(Instance)
 
 # Reservations
 reservedByTable = dbTable("""CREATE TABLE `reserved_by` (
@@ -60,6 +68,8 @@ reservedByTable = dbTable("""CREATE TABLE `reserved_by` (
  CONSTRAINT `reserved_by_ibfk_2` FOREIGN KEY (`instid`) REFERENCES `instances` (`instid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8""")
 ReservedBy = reservedByTable.genClass()
+ReservedBy.type_borrowed = 'borrowed'
+ReservedBy.type_reserved = 'reserved'
 
 def makeRandomItemInstances():
 	import random
@@ -68,6 +78,20 @@ def makeRandomItemInstances():
 		numInstances = random.randint(0, 8)
 		for i in xrange(numInstances):
 			item.makeInstance()
+
+def makeRandomReservations():
+	import time, random, people
+	allInstances = instancesTable.getAll()
+	allMembers = people.membersTable.getAll()
+	possibleReservationTypes = (ReservedBy.type_borrowed, ReservedBy.type_reserved)
+	for instance in allInstances:
+		if random.randint(0, 9) > 6: # Only reserved with a certain priority
+			member = random.choice(allMembers)
+			fromTime = time.time() - random.randint(1, 3 * 24 * 3600)
+			fromDate = time.strftime('%Y-%m-%d', time.localtime(fromTime))
+			toDate = time.strftime('%Y-%m-%d', time.localtime(fromTime + random.randint(3 * 24 * 3600, 15 * 24 * 3600)))
+			reservationType = random.choice(possibleReservationTypes)
+			instance.reserve(member, fromDate, toDate, reservationType)
 
 if __name__ == '__main__':
 	makeRandomItemInstances()

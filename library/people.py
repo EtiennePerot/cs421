@@ -95,6 +95,12 @@ class Member(_rawMemberClass):
 	@staticmethod
 	def createFromPerson(person, standing, balance, expiration):
 		return _rawMemberClass.create(pnid=person['pnid'], standing=standing, balance=balance, expiration=expiration)
+	def reserve(self, instance, fromDate, toDate, type):
+		"""
+			Sadly, due to "from" being a keyword in Python, we cannot use it as argument names.
+			So the "from" has been renamed to "fromDate" in this function, and "to" has been renamed to "toDate" for consistency.
+		"""
+		return instance.reserve(member=self, fromDate=fromDate, toDate=toDate, type=type)
 Member.standing_good = 'good'
 Member.standing_bad = 'bad'
 membersTable.bindClass(Member)

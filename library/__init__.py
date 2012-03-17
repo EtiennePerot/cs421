@@ -1,3 +1,4 @@
+from base import *
 from actors import *
 from authors import *
 from genres import *

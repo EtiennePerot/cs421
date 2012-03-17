@@ -44,9 +44,44 @@ def _sqlColumnClause(params, suffix=''):
 def _sqlValuesClause(params):
 	return ', '.join(['%(' + k + ')s' for k in params])
 
+class libraryCursor(cursors.Cursor):
+	def execute(self, query, args=None):
+		result = super(libraryCursor, self).execute(query, args)
+		if self.description:
+			self._fields = [unicode(field[0]) for field in self.description]
+		return result
+	def __repr__(self):
+		return str(self)
+	def __str__(self):
+		return unicode(self).encode('utf8')
+	def __unicode__(self):
+		results = self.fetchall()
+		rows = []
+		maxColSize = [len(f) for f in self._fields]
+		for r in results:
+			row = []
+			for f in xrange(len(r)):
+				val = unicode(r[f])
+				maxColSize[f] = max(maxColSize[f], len(val))
+				row.append(val)
+			rows.append(row)
+		fieldsHeader = []
+		fieldsLine = []
+		for f in xrange(len(self._fields)):
+			field = self._fields[f] + u' ' * (maxColSize[f] - len(self._fields[f]))
+			fieldsHeader.append(field)
+			fieldsLine.append(u'-' * len(field))
+		resultString = [u' ' + u' | '.join(fieldsHeader) + u' ', u'-' + u'-+-'.join(fieldsLine) + u'-']
+		for r in rows:
+			s = []
+			for f in xrange(len(r)):
+				s.append(r[f] + u' ' * (maxColSize[f] - len(r[f])))
+			resultString.append(u' ' + u' | '.join(s) + u' ')
+		return u'\n'.join(resultString)
+
 def _sqlQuery(query, _cursor=None, **params):
 	if _cursor is None:
-		cursor = conn.cursor()
+		cursor = conn.cursor(libraryCursor)
 	else:
 		cursor = conn.cursor(_cursor)
 	print '~ Executing query:'
@@ -56,6 +91,9 @@ def _sqlQuery(query, _cursor=None, **params):
 	cursor.execute(query, params)
 	conn.commit()
 	return cursor
+
+# Public interface; may eventually not be a direct pointer to the private interface
+sqlQuery = _sqlQuery
 
 class dbTable(object):
 	findBackString = re.compile('`([^`]+)`')

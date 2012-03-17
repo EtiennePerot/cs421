@@ -89,9 +89,9 @@ def generateRandomReservations():
 			member = random.choice(allMembers)
 			fromTime = time.time() - random.randint(1, 3 * 24 * 3600)
 			fromDate = time.strftime('%Y-%m-%d', time.localtime(fromTime))
-			toDate = time.strftime('%Y-%m-%d', time.localtime(fromTime + random.randint(3 * 24 * 3600, 15 * 24 * 3600)))
+			toDate = time.strftime('%Y-%m-%d', time.localtime(fromTime + random.randint(0, 15 * 24 * 3600)))
 			reservationType = random.choice(possibleReservationTypes)
 			instance.reserve(member, fromDate, toDate, reservationType)
 
 if __name__ == '__main__':
-	makeRandomItemInstances()
+	generateRandomItemInstances()

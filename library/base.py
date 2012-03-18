@@ -56,7 +56,7 @@ class libraryCursor(cursors.Cursor):
 		return unicode(self).encode('utf8')
 	def __unicode__(self):
 		if not self.description:
-			return super(libraryCursor, self).__unicode__()
+			return u'(No results to display)'
 		results = self.fetchall()
 		rows = []
 		maxColSize = [len(f) for f in self._fields]

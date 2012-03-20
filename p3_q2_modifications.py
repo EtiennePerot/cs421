@@ -1,6 +1,10 @@
 from library import sqlQuery
 
 print sqlQuery("""
+    DELETE FROM has_languages where iid = (SELECT iid FROM items WHERE title = "An Apache's Gratitude")
+""")
+
+print sqlQuery("""
 INSERT INTO has_languages (`iid`,`type`,`iso`) VALUES (
 	(SELECT iid FROM video NATURAL JOIN items WHERE items.title = "An Apache's Gratitude"),
 	'subtitled',
@@ -9,9 +13,9 @@ INSERT INTO has_languages (`iid`,`type`,`iso`) VALUES (
 """)
 
 print sqlQuery("""
-UPDATE  members SET  balance = '0' WHERE  standing = 'good';
+    UPDATE  members SET  balance = '0' WHERE  standing = 'good';
 """)
 
 print sqlQuery("""
-DELETE FROM reserved_by WHERE reserved_by.to < CURRENT_TIMESTAMP
+    DELETE FROM reserved_by WHERE reserved_by.to < CURRENT_TIMESTAMP
 """)

@@ -1,6 +1,14 @@
 from library import sqlQuery
 
 sqlQuery("""
+    DROP TABLE `rental_history`
+""")
+
+sqlQuery("""
+    CREATE TABLE rental_history (`iid` INT( 10 ) NOT NULL , `end_date` DATE NOT NULL , `type` ENUM(  'borrowed',  'reserved' ) NOT NULL) ENGINE = INNODB;
+""")
+
+sqlQuery("""
     DELETE FROM people WHERE pnid =1 or pnid=2
 """)
 
@@ -81,7 +89,7 @@ try:
     """)
 except :
     print sqlQuery("""
-        SELECT * FROM reserved_by where pnid=2
+        SELECT * FROM reserved_by WHERE pnid=2
     """)
 
 

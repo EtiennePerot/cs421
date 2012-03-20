@@ -93,12 +93,9 @@ try:
     sqlQuery("""
         INSERT INTO  reserved_by (pnid ,instid ,`from` ,`to` ,type)VALUES (2,  1,  '2012-03-19',  '2012-04-02',  'borrowed')
     """)
-except :
-    pass
+except Exception, e:
+    print 'Error happened in the query (this is normal):', e
+
 print sqlQuery("""
     SELECT * FROM reserved_by WHERE pnid=2
 """)
-
-
-
-

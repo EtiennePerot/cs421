@@ -81,6 +81,11 @@ class libraryCursor(cursors.Cursor):
 			resultString.append(u' ' + u' | '.join(s) + u' ')
 		return u'\n'.join(resultString)
 
+#added for p4
+def makeCursor():
+	return pymysql.cursors.DictCursor(conn)
+
+
 def _sqlQuery(query, _cursor=None, **params):
 	if _cursor is None:
 		cursor = conn.cursor(libraryCursor)

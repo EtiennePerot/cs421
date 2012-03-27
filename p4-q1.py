@@ -1,8 +1,8 @@
 #from library import sqlQuery #not using this
 
-import pymysql
+import library import base
 
-c = db.cursor()
+c = makeCursor()
 
 #write procedure (temp name procname) here
 

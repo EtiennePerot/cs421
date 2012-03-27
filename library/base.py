@@ -83,8 +83,7 @@ class libraryCursor(cursors.Cursor):
 
 #added for p4
 def makeCursor():
-	return pymysql.cursors.DictCursor(conn)
-
+	return conn.cursor()
 
 def _sqlQuery(query, _cursor=None, **params):
 	if _cursor is None:

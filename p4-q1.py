@@ -18,16 +18,17 @@ c = makeCursor()
 
 sqlQuery(
 
-CREATE PROCEDURE procname(IN fine INTEGER)
+CREATE PROCEDURE addFines(IN fine INTEGER)
 BEGIN
+ DECLARE myNumber INT;
 REPEAT
- DECLARE number INTEGER DEFAULT 0; 
- SELECT pnid INTO number 
+ SET myNumber = 0; 
+ SELECT pnid INTO @myNumber 
   FROM members NATURAL JOIN reserved_by 
-  WHERE type = "borrowed" AND 'to' < CURRENT_DATE LIMIT 1;
+  WHERE type = "borrowed" AND `to` < CURRENT_DATE LIMIT 1;
  UPDATE members
-  SET balance = balance + 1*(CURRENT_DATE - `to`) WHERE pnid = number;
-UNTIL number = 0
+  SET balance = balance + 1*(CURRENT_DATE - `to`) WHERE pnid = myNumber;
+UNTIL myNumber = 0
 END REPEAT;
 END
 
@@ -53,4 +54,4 @@ END
 #delete record with that id
 
 
-c.callproc(procname, args)
+c.callproc(addFines, args)

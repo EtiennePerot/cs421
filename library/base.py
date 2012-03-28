@@ -112,7 +112,10 @@ def transactionCommit():
 	return sqlQuery('COMMIT')
 
 def transactionRollback():
-	return sqlQuery('ROLLBACK')
+	try:
+		return sqlQuery('ROLLBACK')
+	except:
+		pass # Silently ignore the error when there is no transaction in progress
 
 class dbTable(object):
 	findBackString = re.compile('`([^`]+)`')

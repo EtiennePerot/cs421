@@ -7,7 +7,7 @@ class MultiEditorLine(QtGui.QHBoxLayout):
 	def __init__(self, editor, index):
 		QtGui.QHBoxLayout.__init__(self)
 		self._editor = editor
-		self._label = QtGui.QLabel(editor._label + ' ' + str(index + 1) + ': ')
+		self._label = QtGui.QLabel('<strong>' + editor._label + ' ' + str(index + 1) + '</strong>: ')
 		self.addWidget(self._label, 1, QtCore.Qt.AlignRight)
 		innerLayout = QtGui.QHBoxLayout()
 		self.addLayout(innerLayout, editor._columnRatio)
@@ -82,7 +82,7 @@ class Option1(UIOption):
 		if label is None:
 			l.addStretch(1)
 		else:
-			l.addWidget(QtGui.QLabel(label + ': '), 1, QtCore.Qt.AlignRight)
+			l.addWidget(QtGui.QLabel('<strong>' + label + '</strong>: '), 1, QtCore.Qt.AlignRight)
 		if isinstance(widget, QtGui.QLayout):
 			l.addLayout(widget, self._columnRatio)
 		else:

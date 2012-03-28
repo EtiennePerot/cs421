@@ -28,7 +28,7 @@ class MagazineRow(object):
 		return datetime.date(*map(int, date.split('-')))
 	def revert(self, c):
 		c[0].setText(unicode(c[2][c[3]]))
-	def update(self):
+	def needUpdate(self):
 		for c in self.cells:
 			if not re.match(c[1], c[0].text()):
 				self.revert(c)
@@ -40,11 +40,10 @@ class MagazineRow(object):
 			if c[2][c[3]] == c[0].text():
 				continue
 			c[2][c[3]] = t
-		if self.item.needSync() or self.magazine.needSync():
-			transactionStart()
-			self.item.sync()
-			self.magazine.sync()
-			transactionCommit()
+		return self.item.needSync() or self.magazine.needSync()
+	def update(self):
+		self.item.sync()
+		self.magazine.sync()
 
 class Option3(UIOption):
 	def __init__(self):
@@ -53,7 +52,8 @@ class Option3(UIOption):
 		return 'Magazines editor'
 	def initUI(self, layout):
 		columns = ('Title', 'Date', 'ISSN', 'Issue', 'Pages')
-		layout.addWidget(QtGui.QLabel('The following table contains a list of magazines\nIt can be interactively edited by double-clicking on a cell.'))
+		self.label = QtGui.QLabel('The following table contains a list of magazines\nIt can be interactively edited by double-clicking on a cell.\nAll modifications will be replicated on the database server automatically.')
+		layout.addWidget(self.label)
 		magResults = sqlQuery("""SELECT * FROM items NATURAL JOIN magazines""", asDict=True).fetchall()
 		allItems = itemsTable.fromResults(magResults)
 		allMagazines = magazinesTable.fromResults(magResults)
@@ -65,8 +65,18 @@ class Option3(UIOption):
 		self.timer.timeout.connect(self.updateDatabase)
 		self.timer.start(1000)
 	def updateDatabase(self):
+		needUpdate = False
 		for r in self.rows:
-			r.update()
+			needUpdate = r.needUpdate() or needUpdate
+		if needUpdate:
+			try:
+				transactionStart()
+				for r in self.rows:
+					r.update()
+				transactionCommit()
+			except Exception, e:
+				transactionRollback()
+				self.label.setText(unicode(e))
 
 if __name__ == '__main__':
 	runApp(2)

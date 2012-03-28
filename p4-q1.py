@@ -13,11 +13,24 @@ c = makeCursor()
 #CREATE PROCEDURE procname(IN number INTEGER) ?
 #LANGUAGE Python ?
 
+#actually, this procedure will check for users with overdue items and add a fine to the accounts of users
+
 
 sqlQuery(
 
-CREATE PROCEDURE procname(INOUT number INTEGER)
+CREATE PROCEDURE procname(IN fine INTEGER)
 BEGIN
+
+#users with overdue items
+SELECT * FROM members NATURAL JOIN reserved_by WHERE type = "borrowed" AND 'to' < CURRENT_DATE LIMIT 30;
+#add fine to their accounts
+UPDATE members 
+SET balance = balance + 1*(CURRENT_DATE - 'to')
+  WHERE pnid IN 
+(SELECT * FROM members NATURAL JOIN reserved_by WHERE type = "borrowed" AND 'to' < CURRENT_DATE);
+
+
+
 
 END
 

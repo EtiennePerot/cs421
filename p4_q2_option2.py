@@ -34,3 +34,6 @@ class Option2(UIOption):
 				widget.setFlags(itemFlags)
 				self.table.setItem(r, c, widget)
 		layout.addWidget(self.table)
+
+if __name__ == '__main__':
+	runApp(1)

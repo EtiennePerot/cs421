@@ -28,7 +28,10 @@ class UIOption(QtGui.QWidget):
 	def initUI(self, layout):
 		pass
 
-if __name__ == '__main__':
+app = None
+
+def runApp(selectedTab=None):
+	global app
 	app = QtGui.QApplication(sys.argv)
 	tabs = QtGui.QTabWidget()
 	tabs.setWindowTitle('COMP 421 - Project Milestone 4 - Group 32')
@@ -47,5 +50,10 @@ if __name__ == '__main__':
 	from p4_q2_option5 import Option5
 	option5 = Option5()
 	tabs.addTab(option5, option5.getTitle())
+	if selectedTab is not None:
+		tabs.setCurrentIndex(selectedTab)
 	tabs.show()
 	sys.exit(app.exec_())
+
+if __name__ == '__main__':
+	runApp()

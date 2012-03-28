@@ -151,3 +151,6 @@ class Option1(UIOption):
 			self.statusLabel.setText('Book added!')
 		except Exception, e:
 			self.statusLabel.setText(str(e))
+
+if __name__ == '__main__':
+	runApp(0)

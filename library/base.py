@@ -85,11 +85,13 @@ class libraryCursor(cursors.Cursor):
 def makeCursor():
 	return conn.cursor()
 
-def _sqlQuery(query, _cursor=None, **params):
-	if _cursor is None:
-		cursor = conn.cursor(libraryCursor)
-	else:
+def _sqlQuery(query, _cursor=None, asDict=False, **params):
+	if asDict:
+		cursor = conn.cursor(cursors.DictCursor)
+	elif _cursor is not None:
 		cursor = conn.cursor(_cursor)
+	else:
+		cursor = conn.cursor(libraryCursor)
 	print '~ Executing query:'
 	print query
 	if len(params):
@@ -199,12 +201,17 @@ class dbTable(object):
 		return result
 	def _objectUpdate(self, obj):
 		oldPrimary = self._objectGetPrimaryParams(obj, old=True,  suffix='_w')
-		newAll     =     self._objectGetAllParams(obj, old=False, suffix='_u')
+		oldAll     = self._objectGetAllParams(obj, old=True, suffix='_u')
+		newAll     = self._objectGetAllParams(obj, old=False, suffix='_u')
 		allParams = {}
 		allParams.update(oldPrimary)
 		allParams.update(newAll)
+		newFiltered = {}
+		for p in newAll:
+			if p not in oldAll or newAll[p] != oldAll[p]:
+				newFiltered[p] = newAll[p]
 		q = _sqlQuery(
-			'UPDATE ' + _sqlBackticks(self._name) + ' SET ' + _sqlColumnClause(newAll, suffix='_u') + ' WHERE ' + _sqlColumnClause(oldPrimary, suffix='_w') + ' LIMIT 1',
+			'UPDATE ' + _sqlBackticks(self._name) + ' SET ' + _sqlColumnClause(newFiltered, suffix='_u') + ' WHERE ' + _sqlColumnClause(oldPrimary, suffix='_w') + ' LIMIT 1',
 			**allParams
 		)
 		q.close()
@@ -216,6 +223,10 @@ class dbTable(object):
 		).close()
 	def bindClass(self, newClass):
 		self._recordClass = newClass
+	def fromResults(self, results):
+		if type(results) in (type([]), type(())):
+			return [self.fromResults(x) for x in results]
+		return self._getRecordClass()(**results)
 	def genClass(self):
 		table = self
 		class newClass(_dbInstance):
@@ -262,7 +273,7 @@ class _dbInstance(object):
 		self._table = table
 		self._fields = fields.copy()
 		self._oldFields = fields.copy()
-		self._upToDate = False
+		self._upToDate = True
 	def __getitem__(self, key):
 		if key not in self._fields:
 			return None

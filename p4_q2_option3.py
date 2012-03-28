@@ -27,7 +27,7 @@ class MagazineRow(object):
 	def getDate(self, date):
 		return datetime.date(*map(int, date.split('-')))
 	def revert(self, c):
-		pass
+		c[0].setText(unicode(c[2][c[3]]))
 	def update(self):
 		for c in self.cells:
 			if not re.match(c[1], c[0].text()):
@@ -39,10 +39,12 @@ class MagazineRow(object):
 				continue
 			if c[2][c[3]] == c[0].text():
 				continue
-				continue
 			c[2][c[3]] = t
-		self.item.sync()
-		self.magazine.sync()
+		if self.item.needSync() or self.magazine.needSync():
+			transactionStart()
+			self.item.sync()
+			self.magazine.sync()
+			transactionCommit()
 
 class Option3(UIOption):
 	def __init__(self):

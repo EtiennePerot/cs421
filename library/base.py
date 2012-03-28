@@ -103,6 +103,17 @@ def _sqlQuery(query, _cursor=None, asDict=False, **params):
 # Public interface; may eventually not be a direct pointer to the private interface
 sqlQuery = _sqlQuery
 
+def transactionStart(consistentSnapshot=True):
+	if consistentSnapshot:
+		return sqlQuery('START TRANSACTION WITH CONSISTENT SNAPSHOT')
+	return sqlQuery('START TRANSACTION')
+
+def transactionCommit():
+	return sqlQuery('COMMIT')
+
+def transactionRollback():
+	return sqlQuery('ROLLBACK')
+
 class dbTable(object):
 	findBackString = re.compile('`([^`]+)`')
 	def __init__(self, sql):
@@ -296,7 +307,9 @@ class _dbInstance(object):
 	def delete(self):
 		return self._table._objectDelete(self)
 	def sync(self):
-		if not self._upToDate:
+		if self.needSync():
 			self._table._objectUpdate(self)
 			self._oldFields = self._fields.copy()
 			self._upToDate = True
+	def needSync(self):
+		return not self._upToDate

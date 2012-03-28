@@ -138,6 +138,7 @@ class Option1(UIOption):
 			if not genres:
 				raise Exception('Must specify at least one genre.')
 			# All good, ready to submit.
+			transactionStart()
 			Book.create(
 				title=self.title.text(),
 				date=self.date.date().toString('yyyy-MM-dd'),
@@ -148,6 +149,7 @@ class Option1(UIOption):
 				publishers=publishers,
 				languages=languages
 			)
+			transactionCommit()
 			self.statusLabel.setText('Book added!')
 		except Exception, e:
 			self.statusLabel.setText(str(e))

@@ -21,13 +21,14 @@ sqlQuery(
 CREATE PROCEDURE addFines(IN fine INTEGER)
 BEGIN
  DECLARE myNumber INT;
+ DECLARE myDate DATE;
 REPEAT
  SET myNumber = 0; 
- SELECT pnid INTO @myNumber 
+ SELECT pnid INTO @myNumber, `to` INTO @myDate 
   FROM members NATURAL JOIN reserved_by 
   WHERE type = "borrowed" AND `to` < CURRENT_DATE LIMIT 1;
  UPDATE members
-  SET balance = balance + 1*(CURRENT_DATE - `to`) WHERE pnid = myNumber;
+  SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid = myNumber;
 UNTIL myNumber = 0
 END REPEAT;
 END

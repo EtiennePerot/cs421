@@ -1,6 +1,7 @@
 from PySide import QtCore, QtGui
 from p4_q2_ui import *
 from library import *
+import re
 
 class MultiEditorLine(QtGui.QHBoxLayout):
 	def __init__(self, editor, index):
@@ -56,6 +57,9 @@ class MultiEditor(QtGui.QVBoxLayout):
 		del self._items[index]
 		for i, l in enumerate(self._items):
 			l.setIndex(i)
+	def __iter__(self):
+		for i in self._items:
+			yield i._widget
 
 class LanguageMenu(QtGui.QComboBox):
 	def __init__(self):
@@ -63,6 +67,8 @@ class LanguageMenu(QtGui.QComboBox):
 		for l in languageData:
 			self.addItem(l['english'] + u' (' + l['translated'] + u')', l['iso'])
 		self.setMinimumWidth(150)
+	def getLanguage(self):
+		return self.itemData(self.currentIndex())
 
 
 class Option1(UIOption):
@@ -103,12 +109,45 @@ class Option1(UIOption):
 		layout.addLayout(self.languages)
 		self.authors = MultiEditor('Author', QtGui.QLineEdit, lambda x : x.setPlaceholderText('Author name...'), columnRatio=self._columnRatio)
 		layout.addLayout(self.authors)
-		self.publisher = MultiEditor('Publisher', QtGui.QLineEdit, lambda x : x.setPlaceholderText('Publisher name...'), columnRatio=self._columnRatio)
-		layout.addLayout(self.publisher)
+		self.publishers = MultiEditor('Publisher', QtGui.QLineEdit, lambda x : x.setPlaceholderText('Publisher name...'), columnRatio=self._columnRatio)
+		layout.addLayout(self.publishers)
+		statusBar = QtGui.QHBoxLayout()
+		self.statusLabel = QtGui.QLabel('')
+		statusBar.addWidget(self.statusLabel, 0, QtCore.Qt.AlignCenter)
+		layout.addLayout(statusBar)
 		self.addButton = QtGui.QPushButton('Add book')
 		self.addButton.clicked.connect(self.add)
 		addBar = QtGui.QHBoxLayout()
 		addBar.addWidget(self.addButton, 0, QtCore.Qt.AlignCenter)
 		layout.addLayout(addBar)
 	def add(self):
-		pass
+		try:
+			if not self.title.text():
+				raise Exception('Title field is empty.')
+			if not re.match(r'\d+', self.isbn.text()):
+				raise Exception('ISBN is not valid.')
+			nonEmpty = lambda x : x.text()
+			languages = [t.getLanguage() for t in self.languages]
+			authors = [authorByName(t.text()) or Author.create(name=t.text()) for t in filter(nonEmpty, self.authors)]
+			if not authors:
+				raise Exception('Must specify at least one author.')
+			publishers = [publisherByName(t.text()) or Publisher.create(name=t.text()) for t in filter(nonEmpty, self.publishers)]
+			if not publishers:
+				raise Exception('Must specify at least one publisher.')
+			genres = [t.text() for t in filter(nonEmpty, self.genres)]
+			if not genres:
+				raise Exception('Must specify at least one genre.')
+			# All good, ready to submit.
+			Book.create(
+				title=self.title.text(),
+				date=self.date.date().toString('yyyy-MM-dd'),
+				isbn=int(self.isbn.text()),
+				pages=self.pages.value(),
+				genres=genres,
+				authors=authors,
+				publishers=publishers,
+				languages=languages
+			)
+			self.statusLabel.setText('Book added!')
+		except Exception, e:
+			self.statusLabel.setText(str(e))

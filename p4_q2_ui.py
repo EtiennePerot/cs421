@@ -23,7 +23,7 @@ class UIOption(QtGui.QWidget):
 	def getTitle(self):
 		return 'Untitled option'
 	def run(self):
-		self._continueButton.hide()
+		self._continueButton.deleteLater()
 		self.initUI(self._layout)
 	def initUI(self, layout):
 		pass

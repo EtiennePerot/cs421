@@ -2,13 +2,24 @@ import sys
 from PySide import QtCore, QtGui
 
 class UIOption(QtGui.QWidget):
-	def __init__(self):
+	def __init__(self, autoload=False):
 		QtGui.QWidget.__init__(self)
-		self._layout = QtGui.QVBoxLayout()
-		self._continueButton = QtGui.QPushButton('Run!')
-		self._layout.addWidget(self._continueButton, 0, QtCore.Qt.AlignCenter)
-		self.setLayout(self._layout)
-		self._continueButton.clicked.connect(self.run)
+		self._outerLayout = QtGui.QVBoxLayout(self)
+		self._scrollBox = QtGui.QScrollArea(self)
+		self._scrollBox.setFrameShape(QtGui.QFrame.NoFrame)
+		self._outerLayout.addWidget(self._scrollBox, 1)
+		self._scrollWidget = QtGui.QWidget(self._scrollBox)
+		self._scrollBox.setWidget(self._scrollWidget)
+		self._scrollBox.setWidgetResizable(True)
+		self._layout = QtGui.QVBoxLayout(self._scrollWidget)
+		self._scrollWidget.setLayout(self._layout)
+		if autoload:
+			self.initUI(self._layout)
+		else:
+			self._continueButton = QtGui.QPushButton('Run!', self._scrollWidget)
+			self._layout.addWidget(self._continueButton, 0, QtCore.Qt.AlignCenter)
+			self._continueButton.clicked.connect(self.run)
+		self.setLayout(self._outerLayout)
 	def getTitle(self):
 		return 'Untitled option'
 	def run(self):
@@ -21,7 +32,6 @@ if __name__ == '__main__':
 	app = QtGui.QApplication(sys.argv)
 	tabs = QtGui.QTabWidget()
 	tabs.setWindowTitle('COMP 421 - Project Milestone 4 - Group 32')
-	tabs.setMinimumSize(640, 480)
 	from p4_q2_option1 import Option1
 	option1 = Option1()
 	tabs.addTab(option1, option1.getTitle())

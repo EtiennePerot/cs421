@@ -24,7 +24,7 @@ BEGIN
  DECLARE myDate DATE;
 REPEAT
  SET myNumber = 0; 
- SELECT pnid INTO @myNumber, `to` INTO @myDate 
+ SELECT pnid, `to` INTO @myNumber, @myDate 
   FROM members NATURAL JOIN reserved_by 
   WHERE type = "borrowed" AND `to` < CURRENT_DATE LIMIT 1;
  UPDATE members

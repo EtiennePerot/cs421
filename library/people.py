@@ -31,6 +31,9 @@ class Person(_rawPersonClass):
 		return _rawPersonClass.create(name=name, email=email, address=address, password=password, salt=salt)
 	def checkPassword(self, password):
 		return _saltPassword(password, self['salt']) == self['password']
+	def changePassword(self, rawPassword, salt):
+		self['password'] = _saltPassword(rawPassword, salt)
+		self['salt'] = salt
 	def asMember(self):
 		return membersTable.findSingle(pnid=self['pnid'])
 	def toMember(self, standing, balance, expiration):

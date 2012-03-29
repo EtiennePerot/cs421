@@ -36,6 +36,8 @@ def _sqlBackticks(s):
 		return _sqlBackticks(s.getName())
 	return '`' + s.replace('\\', '\\\\').replace('`', '\\`') + '`'
 
+sqlBackticks = _sqlBackticks
+
 def _sqlColumnClause(params, suffix=''):
 	if len(suffix):
 		return ' AND '.join([_sqlBackticks(k[:-len(suffix)]) + ' = %(' + k[:-len(suffix)] + suffix + ')s' for k in params])
@@ -85,6 +87,12 @@ class libraryCursor(cursors.Cursor):
 def makeCursor():
 	return conn.cursor()
 
+_sqlVerbose = True
+
+def setSqlVerbose(verbose):
+	global _sqlVerbose
+	_sqlVerbose = verbose
+
 def _sqlQuery(query, _cursor=None, asDict=False, **params):
 	if asDict:
 		cursor = conn.cursor(cursors.DictCursor)
@@ -92,10 +100,11 @@ def _sqlQuery(query, _cursor=None, asDict=False, **params):
 		cursor = conn.cursor(_cursor)
 	else:
 		cursor = conn.cursor(libraryCursor)
-	print '~ Executing query:'
-	print query
-	if len(params):
-		print '~ With params:', params
+	if _sqlVerbose:
+		print '~ Executing query:'
+		print query
+		if len(params):
+			print '~ With params:', params
 	cursor.execute(query, params)
 	conn.commit()
 	return cursor

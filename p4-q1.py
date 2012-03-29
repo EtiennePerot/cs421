@@ -20,19 +20,20 @@ sqlQuery(
 
 CREATE PROCEDURE addFines(IN fine INTEGER)
 BEGIN
- DECLARE myPnid INT;
- DECLARE myDate DATE;
- DECLARE myPnidCopy INT DEFAULT 0;
-REPEAT
- SET myPnid = 0; 
- SELECT pnid, `to` INTO @myPnid, @myDate 
-  FROM members NATURAL JOIN reserved_by 
-  WHERE type = "borrowed" AND `to` < CURRENT_DATE AND pnid != myPnidCopy LIMIT 1;
- SET myPnidCopy = @myPnid;
- UPDATE members
-  SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid = myPnid;
-UNTIL myPnid = 0
-END REPEAT;
+  DECLARE myPnid INT;
+  DECLARE myDate DATE;
+  DECLARE myPnidOld INT DEFAULT 0;
+  REPEAT
+    SET myPnid = 0; 
+    SELECT pnid, `to` INTO @myPnid, @myDate 
+      FROM members NATURAL JOIN reserved_by 
+      WHERE type = "borrowed" AND `to` < CURRENT_DATE AND pnid > myPnidOld 
+      ORDER BY pnid LIMIT 1;
+    SET myPnidOld = myPnid;
+    UPDATE members
+      SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid = myPnid;
+  UNTIL myPnid = 0
+  END REPEAT;
 END
 
 )
@@ -42,11 +43,17 @@ sqlQuery(
 
 CREATE PROCEDURE addFine(IN fine INTEGER)
 BEGIN
-thePnids = SELECT pnid FROM members WHERE pnid IN
- (SELECT pnid, `to` FROM members NATURAL JOIN reserved_by 
- WHERE type = "borrowed" AND `to` < CURRENT_DATE);
-UPDATE members
- SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid IN thePnids;
+  DECLARE myDate DATE DEFAULT = CURRENT_DATE;
+  CREATE TABLE lateReturns AS
+  SELECT pnid, `to` FROM members NATURAL JOIN reserved_by 
+  WHERE type = "borrowed" AND `to` < CURRENT_DATE;
+  REPEAT
+    SELECT `to` INTO MyDate FROM members NATURAL JOIN reserved_by 
+    WHERE type = "borrowed" AND `to` < CURRENT_DATE AND pnid != myPnidCopy LIMIT 1;
+    UPDATE members
+      SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid IN lateReturns;
+  UNTIL myDate = CURRENT_DATE;
+  END REPEAT
 END
 
 )

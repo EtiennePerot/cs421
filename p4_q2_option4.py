@@ -26,7 +26,7 @@ class Option4(UIOption):
 		searchResultsLayout.addWidget(self.searchResultsLabel, 0, QtCore.Qt.AlignCenter)
 		self.searchResultsTable = QtGui.QTreeWidget()
 		searchResultsLayout.addWidget(self.searchResultsTable, 1)
-		self.searchResultsTable.setColumnCount(1)
+		self.searchResultsTable.setColumnCount(3)
 		self.searchResultsTable.setHeaderLabels(['Name', 'Email', 'Address'])
 		self.searchResultsTable.itemSelectionChanged.connect(self.changeResult)
 		self.searchResultsTable.hide()
@@ -86,7 +86,7 @@ class Option4(UIOption):
 			self.searchResultsLabel.setText('Ready.')
 			return
 		try:
-			if re.match(r'\d+', searchTerms): # It's a user ID search
+			if re.match(r'^\d+$', searchTerms): # It's a user ID search
 				sqlResult = sqlQuery('SELECT * FROM `people` WHERE `pnid` = ' + searchTerms + ' LIMIT 1', asDict=True).fetchall()
 			else: # It's a name search
 				conditions = ["`name` REGEXP '" + x.replace('\\', '\\\\').replace('\'', '\\\'') + "'" for x in searchTerms.split(' ')]
@@ -97,7 +97,7 @@ class Option4(UIOption):
 		if not len(sqlResult):
 			self.searchResultsTable.hide()
 			self.searchResultsLabel.show()
-			self.searchResultsLabel.setText('No results found!')
+			self.searchResultsLabel.setText('No accounts found!')
 			return
 		self.results = peopleTable.fromResults(sqlResult)
 		self.searchResultsTable.clear()
@@ -130,7 +130,6 @@ class Option4(UIOption):
 			self.status.setText('Password changed!')
 		except Exception, e:
 			self.status.setText(unicode(e))
-
 
 if __name__ == '__main__':
 	runApp(3)

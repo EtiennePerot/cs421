@@ -15,11 +15,11 @@ class MagazineRow(object):
 		self.issueField = QtGui.QTableWidgetItem(unicode(self.magazine['issue']))
 		self.pagesField = QtGui.QTableWidgetItem(unicode(self.magazine['pages']))
 		self.cells = [
-			(self.titleField, r'.+',                 self.item,     'title', unicode),
-			(self.dateField,  r'\d\d\d\d-\d\d-\d\d', self.item,     'date',  self.getDate),
-			(self.issnField,  r'\d+',                self.magazine, 'issn',  int),
-			(self.issueField, r'\d+',                self.magazine, 'issue', int),
-			(self.pagesField, r'\d+',                self.magazine, 'pages', int)
+			(self.titleField, r'^.+$',                 self.item,     'title', unicode),
+			(self.dateField,  r'^\d\d\d\d-\d\d-\d\d$', self.item,     'date',  self.getDate),
+			(self.issnField,  r'^\d+$',                self.magazine, 'issn',  int),
+			(self.issueField, r'^\d+$',                self.magazine, 'issue', int),
+			(self.pagesField, r'^\d+$',                self.magazine, 'pages', int)
 		]
 		self.table = table
 		for i, c in enumerate(self.cells):

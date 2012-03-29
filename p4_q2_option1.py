@@ -124,21 +124,23 @@ class Option1(UIOption):
 		try:
 			if not self.title.text():
 				raise Exception('Title field is empty.')
-			if not re.match(r'\d+', self.isbn.text()):
+			if not re.match(r'^\d+$', self.isbn.text()):
 				raise Exception('ISBN is not valid.')
 			nonEmpty = lambda x : x.text()
 			languages = [t.getLanguage() for t in self.languages]
+			if not languages:
+				raise Exception('Must specify at least one language.')
+			genres = [t.text() for t in filter(nonEmpty, self.genres)]
+			if not genres:
+				raise Exception('Must specify at least one genre.')
+			transactionStart(True) # Modifying SQL queries start now, so start a transaction that we can roll back if things go wrong.
 			authors = [authorByName(t.text()) or Author.create(name=t.text()) for t in filter(nonEmpty, self.authors)]
 			if not authors:
 				raise Exception('Must specify at least one author.')
 			publishers = [publisherByName(t.text()) or Publisher.create(name=t.text()) for t in filter(nonEmpty, self.publishers)]
 			if not publishers:
 				raise Exception('Must specify at least one publisher.')
-			genres = [t.text() for t in filter(nonEmpty, self.genres)]
-			if not genres:
-				raise Exception('Must specify at least one genre.')
 			# All good, ready to submit.
-			transactionStart()
 			Book.create(
 				title=self.title.text(),
 				date=self.date.date().toString('yyyy-MM-dd'),
@@ -149,10 +151,11 @@ class Option1(UIOption):
 				publishers=publishers,
 				languages=languages
 			)
-			transactionCommit()
 			self.statusLabel.setText('Book added!')
+			transactionCommit()
 		except Exception, e:
 			self.statusLabel.setText(str(e))
+			transactionRollback()
 
 if __name__ == '__main__':
 	runApp(0)

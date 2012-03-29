@@ -3,7 +3,7 @@ from library import *
 
 setSqlVerbose(False)
 
-iterations = 20
+iterations = 250
 
 def benchmarkQuery(query, *indexes):
 	for table, index in indexes:

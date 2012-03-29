@@ -15,7 +15,7 @@ c = makeCursor()
 
 #actually, this procedure will check for users with overdue items and add a fine to the accounts of users
 
-
+#this one appears not to have syntax errors but is not functional
 sqlQuery(
 
 CREATE PROCEDURE addFines(IN fine INTEGER)
@@ -35,6 +35,21 @@ UNTIL myPnid = 0
 END REPEAT;
 END
 
+)
+
+#still has syntax errors
+sqlQuery(
+
+CREATE PROCEDURE addFine(IN fine INTEGER)
+BEGIN
+thePnids = SELECT pnid FROM members WHERE pnid IN
+ (SELECT pnid, `to` FROM members NATURAL JOIN reserved_by 
+ WHERE type = "borrowed" AND `to` < CURRENT_DATE);
+UPDATE members
+ SET balance = balance + fine*(CURRENT_DATE - myDate) WHERE pnid IN thePnids;
+END
+
+)
 
 # DECLARE standing  
 # DECLARE myBalance 

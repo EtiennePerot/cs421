@@ -1,0 +1,4 @@
+Query,Without indexes,With indexes
+All actors that have acted in 10 movies or more,11.1353030205,3.71194791794
+Movies available in both english (spoken) and french (spoken) released in 1913,8.8137152195,3.25694894791
+"Members who have not given back their items before the end of their reservation date, and are already in bad standing.",7.00808811188,6.23583912849
